@@ -10,6 +10,10 @@ const { dataSource } = require('./data-source')
 async function clearAll() {
   const ORDER = [
     // TODO: 按「你的」FK 依賴順序填 entity name（先刪 Grade，再 Student，最後 Class / Subject）
+    'Grade',
+    'Student',
+    'Class',
+    'Subject'
   ]
   for (const name of ORDER) {
     if (dataSource.hasMetadata(name)) {
@@ -22,6 +26,11 @@ async function main() {
   await dataSource.initialize()
   await clearAll()
 
+  const classRepo = dataSource.getRepository('Class')
+  const subjectRepo = dataSource.getRepository('Subject')
+  const studentRepo = dataSource.getRepository('Student')
+  const gradeRepo = dataSource.getRepository('Grade')
+
   // ================================================================================
   // TODO：依照任務內容的規格種資料（至少 2 班、2 科目、幾位學生、幾筆成績）
   //   1. 先種 CLASS / SUBJECT
@@ -31,6 +40,67 @@ async function main() {
   //      studentRepo.save({ name: '...', class: 班級物件 })
   //      gradeRepo.save({ score: 95, student: 學生物件, subject: 科目物件 })
   // ================================================================================
+
+  const classA = await classRepo.save({
+    name: '三年A班'
+  })
+  const classB = await classRepo.save({
+    name: '三年B班'
+  })
+
+  const subjectHistory = await subjectRepo.save({
+    name: '歷史'
+  })
+  const subjectEnglish = await subjectRepo.save({
+    name: '英文'
+  })
+
+  const student1 = await studentRepo.save({
+    name: '偉德',
+    class: classA,
+  })
+  const student2 = await studentRepo.save({
+    name: 'Bot',
+    class: classB,
+  })
+  const student3 = await studentRepo.save({
+    name: 'David',
+    class: classB,
+  })
+  const student4 = await studentRepo.save({
+    name: 'Cat',
+    class: classB,
+  })
+  const student5 = await studentRepo.save({
+    name: 'Dog',
+    class: classB,
+  })
+
+  const gradeRepo100 = await gradeRepo.save({
+    score: 100,
+    student: student1,
+    subject: subjectHistory
+  })
+  const gradeRepo80 = await gradeRepo.save({
+    score: 80,
+    student: student2,
+    subject: subjectEnglish
+  })
+    const gradeRepo60 = await gradeRepo.save({
+    score: 60,
+    student: student3,
+    subject: subjectHistory
+  })
+    const gradeRepo40 = await gradeRepo.save({
+    score: 40,
+    student: student4,
+    subject: subjectEnglish
+  })
+    const gradeRepo0 = await gradeRepo.save({
+      score: 0,
+      student: student5,
+      subject: subjectHistory
+    })
 
   console.log('🌱 seed 完成')
   await dataSource.destroy()
